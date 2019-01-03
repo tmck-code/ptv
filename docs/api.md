@@ -1,4 +1,7 @@
-PTV Timetable API - Version 3
+> from https://timetableapi.ptv.vic.gov.au/swagger/ui/index
+
+## PTV Timetable API - Version 3
+
 The PTV Timetable API provides direct access to Public Transport Victoriaâs public transport timetable data.
 
 The API returns scheduled timetable, route and stop data for all metropolitan and regional train, tram and bus services in Victoria, including Night Network(Night Train and Night Tram data are included in metropolitan train and tram services data, respectively, whereas Night Bus is a separate route type).
@@ -11,10 +14,12 @@ Train timetable data is updated daily, while the remaining data is updated weekl
 
 You can access the PTV Timetable API through a HTTP or HTTPS interface, as follows:
 
-base URL / version number / API name / query string
-The base URL is either:
+`base URL / version number / API name / query string`
 
-http://timetableapi.ptv.vic.gov.au or
-https://timetableapi.ptv.vic.gov.au
-The Swagger JSON file is available at http://timetableapi.ptv.vic.gov.au/swagger/docs/v3
+The base URL is either:
+* http://timetableapi.ptv.vic.gov.au or
+* https://timetableapi.ptv.vic.gov.au
+
+The Swagger JSON file is available at:
+* http://timetableapi.ptv.vic.gov.au/swagger/docs/v3
 
