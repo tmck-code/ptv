@@ -5,11 +5,16 @@ import os
 from lib import api
 
 credentials = {
-    'dev_id': os.getenv('PTV_API_USER_ID'),
+    'dev_id': os.getenv('PTV_USER_ID'),
     'api_key': os.getenv('PTV_API_KEY')
 }
+client = api.Client(**credentials)
 
-result = api.status_check(**credentials)
+print(client.status_check())
+print(client.route_types())
+print(client.train_routes())
 
-print(result)
+# lat=-37.751237
+# lon=144.918302
+# print(api.stop_list(lat, lon, **credentials))
 
