@@ -1,0 +1,15 @@
+#!/usr/bin/python3
+
+import os
+
+from lib import api
+
+credentials = {
+    'dev_id': os.getenv('PTV_API_USER_ID'),
+    'api_key': os.getenv('PTV_API_KEY')
+}
+
+result = api.status_check(**credentials)
+
+print(result)
+
