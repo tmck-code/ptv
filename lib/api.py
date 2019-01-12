@@ -6,40 +6,119 @@ from urllib.request import urlopen
 import json
 from collections import namedtuple
 
-HOSTNAME = 'https://timetableapi.ptv.vic.gov.au'
+HOSTNAME = 'https://timetableapi.ptv.vic.gov.au' 
 
-RouteType = namedtuple(
-    'route_type',
-    [
-        'route_type_name',
-        'route_type'
-    ]
-)
+class Collection(object):
 
-Route = namedtuple(
-    'route',
-    [
-        'route_type',
-        'route_id',
-        'route_name',
-        'route_number',
-        'route_gtfs_id'
-    ]
-)
+    def __init__(self, raw_collection):
+        self.obj_collection = Collection.__objectify(
+            raw_collection,
+            self.key,
+            self.namedtuple_class
+        )
 
-Stop = namedtuple(
-    'stop',
-    [
-      'disruption_ids',
-      'stop_suburb',
-      'stop_name',
-      'stop_id',
-      'route_type',
-      'stop_latitude',
-      'stop_longitude',
-      'stop_sequence'
-    ]
-)
+    @property
+    def endpoint(self):
+        raise NotImplementedError('Must supply api endpoint')
+
+    @property
+    def key(self):
+        raise NotImplementedError('Must supply api collection key')
+
+    @property
+    def namedtuple_class(self):
+        raise NotImplementedError('Must supply the namedtuple class')
+
+    def __repr__(self):
+        return json.dumps([element._asdict() for element in self.obj_collection], indent=2)
+
+    @staticmethod
+    def __objectify(collection, collection_key, namedtuple_class):
+        results = []
+        for element in collection[collection_key]:
+            results.append(namedtuple_class(**element))
+        return results
+
+    @staticmethod
+    def __search_collection(collection, search_key, search_value):
+        results = []
+        for element in collection:
+            if search_value in getattr(element, search_key):
+                results.append(element)
+        return results
+
+class RouteTypes(Collection):
+
+    @property
+    def namedtuple_class(self):
+        return namedtuple(
+            'route_type',
+            [
+                'route_type_name',
+                'route_type'
+            ]
+        )
+
+    @property
+    def endpoint(self):
+        return '/v3/route_types'
+
+    @property
+    def key(self):
+        return 'route_types'
+
+class Routes(Collection):
+
+    @property
+    def namedtuple_class(self):
+        return namedtuple(
+            'route',
+            [
+                'route_type',
+                'route_id',
+                'route_name',
+                'route_number',
+                'route_gtfs_id'
+            ]
+        )
+
+    @property
+    def endpoint(self):
+        return '/v3/routes'
+
+    @property
+    def key(self):
+        return 'routes'
+
+class Stops(Collection):
+
+    def __init__(self, **kwargs):
+        self.route_id = kwargs['route_id']
+        self.route_type = kwargs['route_type']
+
+    @property
+    def namedtuple_class(self):
+        return namedtuple(
+            'stop',
+            [
+              'disruption_ids',
+              'stop_suburb',
+              'stop_name',
+              'stop_id',
+              'route_type',
+              'stop_latitude',
+              'stop_longitude',
+              'stop_sequence'
+            ]
+        )
+
+    @property
+    def endpoint(self):
+        return f'/v3/stops/route/{route_id}/route_type/{route_type}'
+
+    @property
+    def key(self):
+        return 'stops'
 
 class Client:
     def __init__(self, dev_id='', api_key=''):
@@ -48,7 +127,7 @@ class Client:
 
     def credentials(self):
         return {
-            'dev_id': self.dev_id,
+            'dev_id':  self.dev_id,
             'api_key': self.api_key
         }
     
@@ -56,33 +135,16 @@ class Client:
         return self.__send_request('/v2/healthcheck')
 
     def route_types(self):
-        return Client.__objectify(
-            self.__send_request('/v3/route_types'),
-            'route_types',
-            RouteType
-        )
-
-    def stops(self, route_id, route_type):
-        return Client.__objectify(
-            self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}'),
-            'stops',
-            Stop
-        )
-
-    def route(self):
-        result = self.__send_request('/v3/routes/4755')
-        return Route(**result['route'])
+        return RouteTypes(self.__send_request('/v3/route_types'))
 
     def routes_by_type(self):
-        return Client.__objectify(
-            self.__send_request('/v3/routes', params={'route_types': [0]}),
-            'routes',
-            Route
+        return Routes(
+            self.__send_request('/v3/routes', params={'route_types': [0]})
         )
 
     def train_routes_by_name(self, substr):
-        routes = self.routes_by_type()
-        results = Client.__search_collection(routes, 'route_name', substr)
+        routes = Routes(self.routes_by_type())
+        Client.__search_collection(routes, 'route_name', substr)
         return results
 
     def train_stops_by_name(self, substr):
@@ -100,23 +162,18 @@ class Client:
             else:
                 return result
 
-    @staticmethod
-    def __objectify(collection, collection_key, namedtuple_class):
-        results = []
-        for element in collection[collection_key]:
-            results.append(namedtuple_class(**element))
-        return results
+    def stops(self, route_id, route_type):
+        return Collection.__objectify(
+            self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}'),
+            'stops',
+            Stop
+        )
 
-    @staticmethod
-    def __search_collection(collection, search_key, search_value):
-        results = []
-        for element in collection:
-            if search_value in getattr(element, search_key):
-                results.append(element)
-        return results
-
-
-
+#     def route(self):
+#         result = self.__send_request('/v3/routes/4755')
+#         return Route(**result['route'])
+# 
+ 
 class URL:
 
     @staticmethod
