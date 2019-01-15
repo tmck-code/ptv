@@ -39,10 +39,9 @@ class Collection(object):
             results.append(namedtuple_class(**element))
         return results
 
-    @staticmethod
-    def __search_collection(collection, search_key, search_value):
+    def search(self, search_key, search_value):
         results = []
-        for element in collection:
+        for element in self.obj_collection:
             if search_value in getattr(element, search_key):
                 results.append(element)
         return results
@@ -92,10 +91,6 @@ class Routes(Collection):
 
 class Stops(Collection):
 
-    def __init__(self, **kwargs):
-        self.route_id = kwargs['route_id']
-        self.route_type = kwargs['route_type']
-
     @property
     def namedtuple_class(self):
         return namedtuple(
@@ -143,14 +138,14 @@ class Client:
         )
 
     def train_routes_by_name(self, substr):
-        routes = Routes(self.routes_by_type())
-        Client.__search_collection(routes, 'route_name', substr)
-        return results
+        routes = self.routes_by_type()
+        return routes.search('route_name', substr)
 
-    def train_stops_by_name(self, substr):
-        stops = self.stops(3, 0)
-        results = Client.__search_collection(stops, 'stop_name', substr)
-        return results
+    def train_stops_by_name(self, route_id,substr):
+        stops = Stops(
+            self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
+        )
+        return stops.search('stop_name', substr)
 
     def __send_request(self, endpoint, params={}, to_json=False):
         url = URL.generate(endpoint, params=params, **self.credentials())
@@ -162,11 +157,9 @@ class Client:
             else:
                 return result
 
-    def stops(self, route_id, route_type):
-        return Collection.__objectify(
-            self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}'),
-            'stops',
-            Stop
+    def stops(self, route_id=0, route_type=0):
+        return Stops(
+            self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
         )
 
 #     def route(self):
