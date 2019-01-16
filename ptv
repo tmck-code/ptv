@@ -1,6 +1,7 @@
 #!/usr/bin/python3
 
 import os
+import json
 
 from lib import api
 
@@ -14,7 +15,10 @@ print(client.status_check())
 print(client.route_types())
 print(client.train_routes_by_name('Craigieburn'))
 print(client.stops(route_id=3, route_type=0))
-print(client.disruptions())
+d = client.disruptions()
+print(json.dumps(d, indent=2))
+for typ, l in d['disruptions'].items():
+    print(typ, len(l))
 
 # print(client.train_stops_by_name('Glenbervie'))
 # lat=-37.751237
