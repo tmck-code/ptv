@@ -6,7 +6,7 @@ from urllib.request import urlopen
 import json
 from collections import namedtuple
 
-HOSTNAME = 'https://timetableapi.ptv.vic.gov.au' 
+HOSTNAME = 'http://timetableapi.ptv.vic.gov.au'
 
 class Collection(object):
 
@@ -29,6 +29,13 @@ class Collection(object):
     def namedtuple_class(self):
         raise NotImplementedError('Must supply the namedtuple class')
 
+    def search(self, search_key, search_value):
+        results = []
+        for element in self.obj_collection:
+            if search_value in getattr(element, search_key):
+                results.append(element)
+        return results
+
     def __repr__(self):
         return json.dumps([element._asdict() for element in self.obj_collection], indent=2)
 
@@ -37,13 +44,6 @@ class Collection(object):
         results = []
         for element in collection[collection_key]:
             results.append(namedtuple_class(**element))
-        return results
-
-    def search(self, search_key, search_value):
-        results = []
-        for element in self.obj_collection:
-            if search_value in getattr(element, search_key):
-                results.append(element)
         return results
 
 class RouteTypes(Collection):
@@ -125,21 +125,18 @@ class Client:
             'dev_id':  self.dev_id,
             'api_key': self.api_key
         }
-    
+
     def status_check(self):
         return self.__send_request('/v2/healthcheck')
 
     def route_types(self):
         return RouteTypes(self.__send_request('/v3/route_types'))
 
-    def routes_by_type(self):
-        return Routes(
+    def search_train_routes_by_name(self, substr):
+        self.routes = Routes(
             self.__send_request('/v3/routes', params={'route_types': [0]})
         )
-
-    def train_routes_by_name(self, substr):
-        routes = self.routes_by_type()
-        return routes.search('route_name', substr)
+        return self.routes.search('route_name', substr)
 
     def train_stops_by_name(self, route_id,substr):
         stops = Stops(
@@ -168,8 +165,8 @@ class Client:
 #     def route(self):
 #         result = self.__send_request('/v3/routes/4755')
 #         return Route(**result['route'])
-# 
- 
+#
+
 class URL:
 
     @staticmethod

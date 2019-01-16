@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 
 import os
 import json
@@ -13,8 +13,12 @@ client = api.Client(**credentials)
 
 print(client.status_check())
 print(client.route_types())
-print(client.train_routes_by_name('Craigieburn'))
-print(client.stops(route_id=3, route_type=0))
+
+for i, route in enumerate(client.search_train_routes_by_name('Craigieburn')):
+    print(i, json.dumps(route))
+for stop in client.stops(3, 0).obj_collection:
+    print(json.dumps(stop))
+
 d = client.disruptions()
 print(json.dumps(d, indent=2))
 for typ, l in d['disruptions'].items():
@@ -24,4 +28,3 @@ for typ, l in d['disruptions'].items():
 # lat=-37.751237
 # lon=144.918302
 # print(api.stop_list(lat, lon, **credentials))
-
