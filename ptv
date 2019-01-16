@@ -12,10 +12,9 @@ client = api.Client(**credentials)
 
 print(client.status_check())
 print(client.route_types())
-# print(client.routes_by_type())
 print(client.train_routes_by_name('Craigieburn'))
 print(client.stops(route_id=3, route_type=0))
-
+print(client.disruptions())
 
 # print(client.train_stops_by_name('Glenbervie'))
 # lat=-37.751237

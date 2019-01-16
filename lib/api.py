@@ -162,6 +162,9 @@ class Client:
             self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
         )
 
+    def disruptions(self):
+        return  self.__send_request(f'/v3/disruptions')
+
 #     def route(self):
 #         result = self.__send_request('/v3/routes/4755')
 #         return Route(**result['route'])
