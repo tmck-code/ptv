@@ -15,7 +15,7 @@ class ResultCollection(object):
     def __repr__(self):
         results = []
         for el in self.collection:
-            results.append(json.dumps(el, indent=2))
+            results.append(json.dumps(el._asdict(), indent=2))
         return '\n'.join(results)
 
 class Collection(object):
