@@ -116,6 +116,20 @@ class Stops(Collection):
         return 'stops'
 
 class Client:
+    '''
+    /v3/stops/{stop_id}/route_type/{route_type}
+    /v3/stops/route/{route_id}/route_type/{route_type}
+    /v3/stops/location/{latitude},{longitude}
+
+    /v3/disruptions/{disruption_id}
+    /v3/disruptions/route/{route_id}/stop/{stop_id}
+    /v3/disruptions/stop/{stop_id}
+    /v3/disruptions/{disruption_id}
+    /v3/disruptions/modes
+
+    /v3/departures/route_type/{route_type}/stop/{stop_id}
+    /v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}
+    '''
     def __init__(self, dev_id='', api_key=''):
         self.dev_id = dev_id
         self.api_key = api_key
