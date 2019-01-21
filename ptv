@@ -11,22 +11,22 @@ credentials = {
 }
 client = api.Client(**credentials)
 
-print(client.status_check())
-print(client.route_types())
+print(client.search_train_routes_by_name('Craigieburn'))
+print(client.train_stops_by_name('Flinder', 3, 0))
 
-for i, route in enumerate(client.search_train_routes_by_name('Sandringham')):
-    print(i, json.dumps(route._asdict(), indent=2))
-for i, route in enumerate(client.search_train_routes_by_name('Craigieburn')):
-    print(i, json.dumps(route._asdict(), indent=2))
-for stop in client.stops(3, 0).obj_collection:
-    print(json.dumps(stop._asdict(), indent=2))
+# print(client.status_check())
+# print(client.route_types())
+
+# for i, route in enumerate(client.search_train_routes_by_name('Sandringham')):
+#     print(i, json.dumps(route._asdict(), indent=2))
+# for stop in client.stops(3, 0).obj_collection:
+#     print(json.dumps(stop._asdict(), indent=2))
 
 # d = client.disruptions()
 # print(json.dumps(d, indent=2))
 # for typ, l in d['disruptions'].items():
 #     print(typ, len(l))
 
-# print(client.train_stops_by_name('Glenbervie'))
 # lat=-37.751237
 # lon=144.918302
 # print(api.stop_list(lat, lon, **credentials))

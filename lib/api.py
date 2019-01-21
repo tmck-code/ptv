@@ -8,6 +8,16 @@ from collections import namedtuple
 
 HOSTNAME = 'http://timetableapi.ptv.vic.gov.au'
 
+class ResultCollection(object):
+    def __init__(self, collection):
+        self.collection = collection
+
+    def __repr__(self):
+        results = []
+        for el in self.collection:
+            results.append(json.dumps(el, indent=2))
+        return '\n'.join(results)
+
 class Collection(object):
 
     def __init__(self, raw_collection):
@@ -34,7 +44,7 @@ class Collection(object):
         for element in self.obj_collection:
             if search_value in getattr(element, search_key):
                 results.append(element)
-        return results
+        return ResultCollection(results)
 
     def __repr__(self):
         return json.dumps([element._asdict() for element in self.obj_collection], indent=2)
@@ -152,11 +162,17 @@ class Client:
         )
         return self.routes.search('route_name', substr)
 
-    def train_stops_by_name(self, route_id,substr):
+    def train_stops_by_name(self, substr, route_id=3, route_type=0):
         stops = Stops(
+            # self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
             self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
         )
         return stops.search('stop_name', substr)
+
+    def stops(self, route_id=0, route_type=0):
+        return Stops(
+            self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
+        )
 
     def __send_request(self, endpoint, params={}, to_json=False):
         url = URL.generate(endpoint, params=params, **self.credentials())
@@ -167,11 +183,6 @@ class Client:
                 return json.dumps(result, indent=2)
             else:
                 return result
-
-    def stops(self, route_id=0, route_type=0):
-        return Stops(
-            self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
-        )
 
     def disruptions(self):
         return  self.__send_request(f'/v3/disruptions')
