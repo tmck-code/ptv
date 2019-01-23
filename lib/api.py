@@ -28,10 +28,6 @@ class Collection(object):
         )
 
     @property
-    def endpoint(self):
-        raise NotImplementedError('Must supply api endpoint')
-
-    @property
     def key(self):
         raise NotImplementedError('Must supply api collection key')
 
@@ -69,10 +65,6 @@ class RouteTypes(Collection):
         )
 
     @property
-    def endpoint(self):
-        return '/v3/route_types'
-
-    @property
     def key(self):
         return 'route_types'
 
@@ -90,10 +82,6 @@ class Routes(Collection):
                 'route_gtfs_id'
             ]
         )
-
-    @property
-    def endpoint(self):
-        return '/v3/routes'
 
     @property
     def key(self):
@@ -118,12 +106,33 @@ class Stops(Collection):
         )
 
     @property
-    def endpoint(self):
-        return f'/v3/stops/route/{route_id}/route_type/{route_type}'
+    def key(self):
+        return 'stops'
+
+class Departures(Collection):
+
+    @property
+    def namedtuple_class(self):
+        return namedtuple(
+            'departure',
+            [
+              'stop_id',
+              'route_id',
+              'run_id',
+              'disruption_ids',
+              'direction_id',
+              'scheduled_departure_utc',
+              'estimated_departure_utc',
+              'at_platform',
+              'platform_number',
+              'flags',
+              'departure_sequence'
+            ]
+        )
 
     @property
     def key(self):
-        return 'stops'
+        return 'departures'
 
 class Client:
     '''
@@ -186,6 +195,17 @@ class Client:
 
     def disruptions(self):
         return  self.__send_request(f'/v3/disruptions')
+
+    def departures(self, route_type=0, stop_id=1071):
+        return Departures(
+            self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}')
+        )
+
+    def departures_for_route(self, route_type=0, stop_id=1071, route_id=3):
+        return Departures(
+            self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}')
+        )
+
 
 #     def route(self):
 #         result = self.__send_request('/v3/routes/4755')
