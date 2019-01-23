@@ -206,12 +206,6 @@ class Client:
             self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}')
         )
 
-
-#     def route(self):
-#         result = self.__send_request('/v3/routes/4755')
-#         return Route(**result['route'])
-#
-
 class URL:
 
     @staticmethod
