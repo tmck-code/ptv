@@ -13,6 +13,7 @@ client = api.Client(**credentials)
 
 print(client.search_train_routes_by_name('Craigieburn'))
 print(client.train_stops_by_name('Flinder', 3, 0))
+print(json.dumps(client.departures(), indent=2))
 
 # print(client.status_check())
 # print(client.route_types())
