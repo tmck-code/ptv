@@ -134,21 +134,43 @@ class Departures(Collection):
     def key(self):
         return 'departures'
 
+class Disruptions(Collection):
+
+    @property
+    def namedtuple_class(self):
+        return namedtuple(
+            'disruption',
+            [
+              'disruption_id',
+              'title',
+              'url',
+              'description',
+              'disruption_status',
+              'disruption_type',
+              'published_on',
+              'last_updated',
+              'from_date',
+              'to_date',
+              'routes',
+              'stops',
+              'colour',
+              'display_on_board',
+              'display_status',
+            ]
+        )
+
+class TrainDisruptions(Disruptions):
+
+    def __init__(self, raw_collection):
+        super().__init__(raw_collection['disruptions'])
+
+    @property
+    def key(self):
+        return 'metro_train'
+
 class Client:
-    '''
-    /v3/stops/{stop_id}/route_type/{route_type}
-    /v3/stops/route/{route_id}/route_type/{route_type}
-    /v3/stops/location/{latitude},{longitude}
+    'Access information from the public PTV API'
 
-    /v3/disruptions/{disruption_id}
-    /v3/disruptions/route/{route_id}/stop/{stop_id}
-    /v3/disruptions/stop/{stop_id}
-    /v3/disruptions/{disruption_id}
-    /v3/disruptions/modes
-
-    /v3/departures/route_type/{route_type}/stop/{stop_id}
-    /v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}
-    '''
     def __init__(self, dev_id='', api_key=''):
         self.dev_id = dev_id
         self.api_key = api_key
@@ -173,7 +195,6 @@ class Client:
 
     def train_stops_by_name(self, substr, route_id=3, route_type=0):
         stops = Stops(
-            # self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
             self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
         )
         return stops.search('stop_name', substr)
@@ -182,6 +203,32 @@ class Client:
         return Stops(
             self.__send_request(f'/v3/stops/route/{route_id}/route_type/{route_type}')
         )
+
+    def disruptions(self):
+        return TrainDisruptions(
+            self.__send_request('/v3/disruptions')
+        )
+
+    def disruption_modes(self):
+        return TrainDisruptions(
+            self.__send_request('/v3/disruptions/modes')
+        )
+
+    def disruptions_for_stop(self, route_id, stop_id):
+        return TrainDisruptions(
+            self.__send_request(f'/v3/disruptions/route/{route_id}/stop/{stop_id}')
+        )
+
+    def departures(self, route_type=0, stop_id=1071):
+        return Departures(
+            self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}')
+        )
+
+    def departures_for_route(self, route_type=0, stop_id=1071, route_id=3):
+        return Departures(
+            self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}')
+        )
+
 
     def __send_request(self, endpoint, params={}, to_json=False):
         url = URL.generate(endpoint, params=params, **self.credentials())
@@ -193,18 +240,6 @@ class Client:
             else:
                 return result
 
-    def disruptions(self):
-        return  self.__send_request(f'/v3/disruptions')
-
-    def departures(self, route_type=0, stop_id=1071):
-        return Departures(
-            self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}')
-        )
-
-    def departures_for_route(self, route_type=0, stop_id=1071, route_id=3):
-        return Departures(
-            self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}')
-        )
 
 class URL:
 

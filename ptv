@@ -24,11 +24,10 @@ print(client.departures_for_route())
 # for stop in client.stops(3, 0).obj_collection:
 #     print(json.dumps(stop._asdict(), indent=2))
 
-# d = client.disruptions()
-# print(json.dumps(d, indent=2))
-# for typ, l in d['disruptions'].items():
-#     print(typ, len(l))
+print(client.disruptions())
 
 # lat=-37.751237
 # lon=144.918302
 # print(api.stop_list(lat, lon, **credentials))
+
+
