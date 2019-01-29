@@ -13,10 +13,7 @@ class ResultCollection(object):
         self.collection = collection
 
     def __repr__(self):
-        results = []
-        for el in self.collection:
-            results.append(json.dumps(el._asdict(), indent=2))
-        return '\n'.join(results)
+        return json.dumps([el._asdict() for el in self.collection], indent=2)
 
 class Collection(object):
 
