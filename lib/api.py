@@ -206,11 +206,6 @@ class Client:
             self.__send_request('/v3/disruptions')
         )
 
-    def disruption_modes(self):
-        return TrainDisruptions(
-            self.__send_request('/v3/disruptions/modes')
-        )
-
     def disruptions_for_stop(self, route_id, stop_id):
         return TrainDisruptions(
             self.__send_request(f'/v3/disruptions/route/{route_id}/stop/{stop_id}')
@@ -225,7 +220,6 @@ class Client:
         return Departures(
             self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}')
         )
-
 
     def __send_request(self, endpoint, params={}, to_json=False):
         url = URL.generate(endpoint, params=params, **self.credentials())
