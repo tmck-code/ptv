@@ -18,4 +18,7 @@ client = api.Client(**credentials)
 
 # print(client.status_check())
 # print(client.route_types())
-print(client.departures_for_stop_name(0, 'Sandringham', 'Balaclava'))
+result = client.departures_for_stop_name(0, 'Sandringham', 'Balaclava')
+print(result.scheduled_departure_utc)
+
+print(json.dumps(result._asdict(), indent=2))

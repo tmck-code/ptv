@@ -235,11 +235,12 @@ class Client:
 
     def departures_for_stop_name(self, route_type=0, route_name='', stop_name=''):
         route_id = self.search_train_routes_by_name(route_name)[0].route_id
-        print('**********', route_id)
         stop_id = self.train_stops_by_name(stop_name, route_id)[0].stop_id
-        now = datetime.now,()
+        now = datetime.now()
         for d in self.departures(route_type, stop_id):
-            print(d)
+            if (int(now.timestamp() - datetime.strptime(d.scheduled_departure_utc,'%Y-%m-%dT%H:%M:%SZ').timestamp())<< 0):
+                print(f'Current utc time is {now}')
+                return d
 
     def departures_for_stop(self, route_type=0, stop_id=1071, route_id=3):
         return Departures(
@@ -248,7 +249,7 @@ class Client:
 
     def __send_request(self, endpoint, params={}, to_json=False):
         url = URL.generate(endpoint, params=params, **self.credentials())
-        print(f'sending to url {url}')
+        # print(f'sending to url {url}')
         with urlopen(url) as f:
             result = json.loads(f.read().decode('UTF-8'))
             if to_json:
@@ -262,8 +263,8 @@ class URL:
     @staticmethod
     def generate(endpoint, params={}, dev_id='', api_key='', hostname=HOSTNAME):
         params = URL.__generate_params(endpoint, dev_id, api_key, params=params)
-        print('generated URL params')
-        print(json.dumps(params, indent=2))
+        # print('generated URL params')
+        # print(json.dumps(params, indent=2))
         return f'{hostname}{endpoint}?{params}'
 
     @staticmethod
@@ -279,7 +280,7 @@ class URL:
     def generate_signature(endpoint, dev_id, api_key, params={}):
         base_params = {'devid': dev_id }
         raw = f'{endpoint}?{urlencode(base_params)}'
-        print(f'generating signature from: "{raw}"')
+        # print(f'generating signature from: "{raw}"')
         hasher = hmac.new(
             api_key.encode('UTF-8'),
             raw.encode('UTF-8'),
