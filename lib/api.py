@@ -288,4 +288,3 @@ class URL:
         )
         return hasher.hexdigest()
 
-
