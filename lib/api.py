@@ -4,6 +4,7 @@ from hashlib import sha1
 from urllib.parse import urlencode
 from urllib.request import urlopen
 import json
+from datetime import datetime
 from collections import namedtuple
 
 HOSTNAME = 'http://timetableapi.ptv.vic.gov.au'
@@ -11,6 +12,9 @@ HOSTNAME = 'http://timetableapi.ptv.vic.gov.au'
 class ResultCollection(object):
     def __init__(self, collection):
         self.collection = collection
+
+    def __getitem__(self, index):
+        return self.collection[index]
 
     def __repr__(self):
         return json.dumps([el._asdict() for el in self.collection], indent=2)
@@ -23,6 +27,7 @@ class Collection(object):
             self.key,
             self.namedtuple_class
         )
+        self.index = 0
 
     @property
     def key(self):
@@ -41,6 +46,18 @@ class Collection(object):
 
     def __repr__(self):
         return json.dumps([element._asdict() for element in self.obj_collection], indent=2)
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        try:
+            item = self.obj_collection[self.index]
+        except IndexError:
+            raise StopIteration()
+        else:
+            self.index+= 1
+            return item
 
     @staticmethod
     def __objectify(collection, collection_key, namedtuple_class):
@@ -216,7 +233,15 @@ class Client:
             self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}')
         )
 
-    def departures_for_route(self, route_type=0, stop_id=1071, route_id=3):
+    def departures_for_stop_name(self, route_type=0, route_name='', stop_name=''):
+        route_id = self.search_train_routes_by_name(route_name)[0].route_id
+        print('**********', route_id)
+        stop_id = self.train_stops_by_name(stop_name, route_id)[0].stop_id
+        now = datetime.now,()
+        for d in self.departures(route_type, stop_id):
+            print(d)
+
+    def departures_for_stop(self, route_type=0, stop_id=1071, route_id=3):
         return Departures(
             self.__send_request(f'/v3/departures/route_type/{route_type}/stop/{stop_id}/route/{route_id}')
         )

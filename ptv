@@ -11,23 +11,11 @@ credentials = {
 }
 client = api.Client(**credentials)
 
-print(client.search_train_routes_by_name('Craigieburn'))
-print(client.train_stops_by_name('Flinder', 3, 0))
-print(client.departures())
-print(client.departures_for_route())
+# print(client.search_train_routes_by_name('Craigieburn'))
+# print(client.train_stops_by_name('Glenbervie', 3, 0))
+# print(client.departures(0, 1071))
+# print(client.departures_for_route())
 
 # print(client.status_check())
 # print(client.route_types())
-
-# for i, route in enumerate(client.search_train_routes_by_name('Sandringham')):
-#     print(i, json.dumps(route._asdict(), indent=2))
-# for stop in client.stops(3, 0).obj_collection:
-#     print(json.dumps(stop._asdict(), indent=2))
-
-print(client.disruptions())
-
-# lat=-37.751237
-# lon=144.918302
-# print(api.stop_list(lat, lon, **credentials))
-
-
+print(client.departures_for_stop_name(0, 'Sandringham', 'Balaclava'))
